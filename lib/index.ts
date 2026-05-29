@@ -4058,8 +4058,9 @@ export class SolarDay extends DayUnit {
     }
 
     getConstellation(): Constellation {
-        const y: number = this.month * 100 + this.day;
-        return Constellation.fromIndex(y > 1221 || y < 120 ? 9 : y < 219 ? 10 : y < 321 ? 11 : y < 420 ? 0 : y < 521 ? 1 : y < 622 ? 2 : y < 723 ? 3 : y < 823 ? 4 : y < 923 ? 5 : y < 1024 ? 6 : y < 1123 ? 7 : 8);
+        const m: number = this.month - 1
+        const offset: number = this.day > [19, 18, 20, 19, 20, 21, 22, 22, 22, 23, 22, 21][m] ? 1 : 0
+        return Constellation.fromIndex(9 + m + offset)
     }
 
     getName(): string {
@@ -5761,7 +5762,7 @@ export class HijriYear extends YearUnit {
     }
 
     isLeap(): boolean {
-        const i: number = Math.floor(this.year - 1 / 30);
+        const i: number = ((this.year - 1) % 30 + 30) % 30;
         return i === 1 || i === 4 || i === 6 || i === 9 || i === 12 || i === 15 || i === 17 || i === 20 || i === 23 || i === 25 || i === 28;
     }
 
@@ -5862,10 +5863,7 @@ export class HijriDay extends DayUnit {
     }
 
     static validate(year: number, month: number, day: number): void {
-        if (day < 1) {
-            throw new Error(`illegal hijri day: ${year}-${month}-${day}`);
-        }
-        if (day > HijriMonth.fromYm(year, month).getDayCount()) {
+        if (day < 1 || day > HijriMonth.fromYm(year, month).getDayCount()) {
             throw new Error(`illegal hijri day: ${year}-${month}-${day}`);
         }
     }
@@ -5917,11 +5915,7 @@ export class HijriDay extends DayUnit {
     }
 
     getIndexInYear(): number {
-        let n: number = 0;
-        for (let i: number = 1; i < this.month; i++) {
-            n += HijriMonth.fromYm(this.year, i).getDayCount();
-        }
-        return n + this.day - 1;
+        return this.subtract(new HijriDay(this.year, 1, 1));
     }
 }
 

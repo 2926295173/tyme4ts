@@ -2,6 +2,9 @@
 .idea/
 *.iml
 dist/test/
+dist/js/
+dist/build.config.d.ts
+dist/build.config.js
 node_modules/
 lib/
 test/
